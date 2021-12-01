@@ -2,19 +2,17 @@ include("./../aoc.jl")
 
 using .AOC
 
-function processinput(input)    
-    input = split(input, '\n')
-    input = map(x -> parse(Int, x), collect(input))
+function AOC.processinput(data)
+    data = split(data, '\n')
+    map(x -> parse(Int, x), collect(data))    
 end
 
 function solve1(input)
-    input = processinput(input)
     data = [Inf, input...]
     sum([data[i] < data[i+1] for i in 1:length(input)])
 end
 
 function solve2(input)
-    input = processinput(input)
     data = [Inf, Inf, Inf, input...]
     sum([sum(data[i:i+2]) < sum(data[i+1:i+3]) for i in 1:length(input)])
 end

@@ -1,6 +1,6 @@
 module AOC
 
-export Puzzle, solve
+export Puzzle, solve, processinput
 
 struct Puzzle
     day
@@ -9,6 +9,8 @@ struct Puzzle
     solve
     answer
 end
+
+processinput(data) = data
 
 Puzzle(day, name, solve, answer) = Puzzle(day, name, "input.txt", solve, answer)
 
@@ -33,7 +35,7 @@ function rawinput(puzzle::Puzzle)
     !isfile(filename) && return ""
 
     open(filename) do io
-        read(io, String)
+        processinput(read(io, String))
     end
 end
 

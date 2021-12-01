@@ -2,18 +2,15 @@ include("./../aoc.jl")
 
 using .AOC
 
-function processinput(input)
-    # typeof(input) == String
-    input = split(input, '\n')
+function AOC.processinput(data)
+    # data = split(data, '\n')
 end
 
 function solve1(input)
-    input = processinput(input)
     "nog te bepalen"
 end
 
 function solve2(input)
-    input = processinput(input)
     "nog te bepalen"
 end
 

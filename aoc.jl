@@ -1,6 +1,6 @@
 module AOC
 
-export Puzzle, solve, processinput
+export Puzzle, getresults, processinput
 
 struct Puzzle
     day
@@ -26,7 +26,7 @@ function solve(puzzle::Puzzle)
     end
 end
 
-function solve(puzzles::Array)
+function getresults(puzzles::Array)
     println(join(map(p -> solve(p), puzzles), "\n"))
 end
 

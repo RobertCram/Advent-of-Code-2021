@@ -4,7 +4,7 @@ using .AOC
 
 function AOC.processinput(data)
     data = split(data, '\n')
-    map(x -> parse(Int, x), collect(data))    
+    map(x -> parse(Int, x), data)    
 end
 
 function solve1(input)
@@ -24,4 +24,4 @@ puzzles = [
     Puzzle(1, "deel 2", solve2, 1683)
 ]
 
-solve(puzzles)
+getresults(puzzles)

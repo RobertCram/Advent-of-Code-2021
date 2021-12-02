@@ -40,7 +40,7 @@
 			"    Puzzle($1, \"deel 2\", solve2, nothing)",
 			"]",
 			"",
-			"solve(puzzles)"
+			"getresults(puzzles)"
 		]
 
 	}

@@ -1,3 +1,5 @@
+module Day3
+
 include("./../aoc.jl")
 
 using .AOC
@@ -22,3 +24,5 @@ puzzles = [
 ]
 
 getresults(puzzles)
+
+end

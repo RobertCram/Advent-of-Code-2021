@@ -17,6 +17,8 @@
 	// }
 	"Advent of Code Template": {
 		"body": [
+			"module Day$1",
+			"",
 			"include(\"./../aoc.jl\")",
 			"",
 			"using .AOC",
@@ -40,7 +42,9 @@
 			"    Puzzle($1, \"deel 2\", solve2, nothing)",
 			"]",
 			"",
-			"getresults(puzzles)"
+			"getresults(puzzles)",
+			"",
+			"end",
 		]
 
 	}

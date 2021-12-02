@@ -22,7 +22,7 @@ function solve(puzzle::Puzzle)
     elseif answer == puzzle.answer
         green("Het antwoord van puzzel dag $(puzzle.day) - $(puzzle.name) is: $(answer)")
     else
-        red("Het antwoord ovan puzzel dag $(puzzle.day) -  $(puzzle.name) is: $(answer), maar moet zijn: $(puzzle.answer)")
+        red("Het antwoord van puzzel dag $(puzzle.day) -  $(puzzle.name) is: $(answer), maar moet zijn: $(puzzle.answer)")
     end
 end
 

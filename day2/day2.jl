@@ -67,6 +67,6 @@ puzzles = [
     Puzzle(2, "deel 2", solve2, 1739283308)
 ]
 
-getresults(puzzles)
+printresults(puzzles)
 
 end

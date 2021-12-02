@@ -26,6 +26,6 @@ puzzles = [
     Puzzle(1, "deel 2", solve2, 1683)
 ]
 
-getresults(puzzles)
+printresults(puzzles)
 
 end

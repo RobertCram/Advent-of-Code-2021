@@ -15,6 +15,18 @@ struct Command
     units
 end
 
+const actiontable1 = Dict(
+    :forward => (position, units) -> Position(position.x + units, position.depth),
+    :down => (position, units) -> Position(position.x, position.depth + units),
+    :up => (position, units) -> Position(position.x, position.depth - units)
+)
+
+const actiontable2 = Dict(
+    :forward => (position, units) -> Position(position.x + units, position.depth + position.aim * units, position.aim),
+    :down => (position, units) -> Position(position.x, position.depth, position.aim + units),
+    :up => (position, units) -> Position(position.x, position.depth, position.aim - units) 
+)
+ 
 Position() = Position(0, 0, 0)
 Position(x, depth) = Position(x, depth, 0)
 
@@ -23,41 +35,18 @@ function AOC.processinput(data)
     data = map(c -> (s = split(c, ' ' ); Command(Symbol(s[1]), parse(Int, s[2]))), data)
 end
 
-function update1(position::Position, command::Command)::Position
-    if command.direction == :forward
-        Position(position.x + command.units, position.depth)
-    elseif command.direction == :down
-        Position(position.x, position.depth + command.units)
-    elseif command.direction == :up
-        Position(position.x, position.depth - command.units)
-    end
-end
-
-function update2(position::Position, command::Command)::Position
-    if command.direction == :forward
-        Position(position.x + command.units, position.depth + position.aim * command.units, position.aim)
-    elseif command.direction == :down
-        Position(position.x, position.depth, position.aim + command.units)
-    elseif command.direction == :up
-        Position(position.x, position.depth, position.aim - command.units)
-    end
-end
-
-function solve(input, update)
-    commands = input
-    position = Position()
-    for command in commands
-        position = update(position, command)
-    end
+function solve(commands, actiontable)
+    update = (position, command) -> actiontable[command.direction](position, command.units)
+    position = reduce(update, commands, init = Position())
     position.x * position.depth
 end
 
 function solve1(input)
-    solve(input, update1)
+    solve(input, actiontable1)
 end
 
 function solve2(input)
-    solve(input, update2)
+    solve(input, actiontable2)
 end
 
 puzzles = [

@@ -6,7 +6,7 @@ using .AOC
 
 function AOC.processinput(data)
     data = split(data, '\n')
-    data = [parse(Int, data[i][j]) for i in 1:length(data), j in 1:length(data[1])]
+    [parse(Int, data[i][j]) for i in 1:length(data), j in 1:length(data[1])]
 end
 
 function todecimal(binaryvector)
@@ -21,10 +21,10 @@ function leastcommon(binarymatrix)
     .! mostcommon(binarymatrix)
 end
 
-function getrating(report, common::Function)
+function getrating(report, commonstrategy::Function)
     currentcolumn = 1
     while size(report, 1) > 1
-        commonbit = common(report)[currentcolumn]
+        commonbit = commonstrategy(report)[currentcolumn]
         commonbitmask = report[:, currentcolumn] .== commonbit
         report = report[commonbitmask, :]
         currentcolumn += 1        

@@ -10,8 +10,7 @@ function AOC.processinput(data)
 end
 
 function todecimal(binaryvector)
-    b = reverse([2^n for n in 0:length(binaryvector)-1])
-    (binaryvector * b)[1]
+    parse(Int, join(1 .* binaryvector), base=2)
 end
 
 function mostcommon(binarymatrix)
@@ -22,12 +21,13 @@ function leastcommon(binarymatrix)
     .! mostcommon(binarymatrix)
 end
 
-function getrating(report, bitcriteria)
-    currentbit = 1
+function getrating(report, common::Function)
+    currentcolumn = 1
     while size(report, 1) > 1
-        c = bitcriteria(report)
-        report = report[report[:, currentbit] .== c[currentbit], :]
-        currentbit += 1        
+        commonbit = common(report)[currentcolumn]
+        commonbitmask = report[:, currentcolumn] .== commonbit
+        report = report[commonbitmask, :]
+        currentcolumn += 1        
     end
     todecimal(report)
 end

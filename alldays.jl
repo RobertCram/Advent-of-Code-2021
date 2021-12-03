@@ -6,15 +6,25 @@ function bold(str)
     "\033[1m$(str)\033[0m"
 end
 
+function gray(str)
+    "\e[2m$(str)\e[0m"
+end
+
+function showday(i)
+    filename = "day$(i)/day$(i).jl"
+    !isfile(filename) && return true
+
+    println()
+    println("Day $(i)")
+    include("day$(i)/day$(i).jl")
+    return false
+end
+
 clearterminal()
 println()
 println(bold("Advent of Code 2021"))
 
 for i in 1:25
-    filename = "day$(i)/day$(i).jl"
-    !isfile(filename) && break
-
-    println()
-    println("Day $(i)")
-    include("day$(i)/day$(i).jl")
+    stats = @timed showday(i) && break
+    println(gray("Elapsed time (in secs): $(stats.time)"))
 end

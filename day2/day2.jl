@@ -32,7 +32,7 @@ Position(x, depth) = Position(x, depth, 0)
 
 function AOC.processinput(data)
     data = split(data, '\n')
-    data = map(c -> (s = split(c, ' ' ); Command(Symbol(s[1]), parse(Int, s[2]))), data)
+    data = map(c -> (s = split(c); Command(Symbol(s[1]), parse(Int, s[2]))), data)
 end
 
 function solve(commands, actiontable)

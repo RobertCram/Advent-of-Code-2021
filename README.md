@@ -7,7 +7,7 @@ I'd like to get more familiar with the [Julia](https://julialang.org) language, 
 <br /> 
 
 ## Setup
-Make sure [Docker](https://www.docker.com/products/docker-desktop) and [Visual Studio Code](https://code.visualstudio.com) are installed. Add the [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension to Visula Studio Code. Clone the repository and open it in Visual Studio Code. No other installation needed.
+Make sure [Docker](https://www.docker.com/products/docker-desktop) and [Visual Studio Code](https://code.visualstudio.com) are installed. Add the [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension to Visual Studio Code. Clone the repository and open it in Visual Studio Code. No other installation needed.
 <br /> 
 <br /> 
 

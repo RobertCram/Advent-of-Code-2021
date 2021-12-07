@@ -4,6 +4,8 @@ include("./../aoc.jl")
 
 using .AOC
 
+Base.:^(f::Function, n::Integer) = n <= 1 ? f : f ∘ f^(n-1) # Ok, this is just showing off: ^ can now be used on a function to repeat it a number of times (see line 27)
+
 function AOC.processinput(data)
     data = parse.(Int, split(data, ','))
 end
@@ -20,9 +22,9 @@ function timestep(population)
     newpopulation 
 end
 
-function solve(input, timesteps)
+function solve(input, t)
     population = countmap(input)
-    sum(values(reduce((p, _) -> timestep(p), 1:timesteps, init = population)))
+    sum(values((timestep^t)(population)))
 end
 
 function solve1(input)

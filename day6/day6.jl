@@ -11,7 +11,8 @@ function AOC.processinput(data)
 end
 
 function countmap(individuals::Array{Int})
-    reduce((result, individual) -> (haskey(result, individual) ? result[individual] += 1 : result[individual] = 1; result), individuals, init=Dict([]))
+    d0 = Dict(i => 0 for i in unique(individuals))
+    reduce((result, individual) -> (result[individual] += 1; result), individuals, init = d0)
 end
 
 function timestep(population)

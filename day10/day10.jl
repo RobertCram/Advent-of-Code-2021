@@ -38,17 +38,17 @@ function getstack(line::AbstractString)
 end
 
 function getautocompletescore(stack)
-    reduce((score, _) -> 5 * score + AutoCompleteScores[pop!(stack)], 1:length(stack), init=0)
+    reduce((score, bracket) -> 5 * score + AutoCompleteScores[bracket], reverse(stack), init=0)
 end
 
 function solve1(lines)
-    errors = filter(e -> !isnothing(e), map(line -> getstack(line).error, lines))
+    errors = filter(!isnothing, map(line -> getstack(line).error, lines))
     sum(map(e -> ErrorScores[e], errors))
 end
 
 function solve2(lines)
-    lines = lines[map(line -> isnothing(getstack(line).error), lines)]
-    scores = sort(map(line -> getautocompletescore(getstack(line).stack), lines))
+    linestocomplete = lines[map(line -> isnothing(getstack(line).error), lines)]
+    scores = sort(map(line -> getautocompletescore(getstack(line).stack), linestocomplete))
     scores[(length(scores)+1) ÷ 2]
 end
 

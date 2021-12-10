@@ -38,19 +38,25 @@ end
 function getoutput(output, mapping)
     parse(Int, join(map(x -> mapping[x], join.(sort.(collect.(output))))))
 end
- 
+
+function digitswithsegmentsinsignals(signals, n)
+    filter(s -> length(s) == n, signals)
+end
+
 function getmapping(signals)
     mapping = []
 
+    digitswithsegments(n) = digitswithsegmentsinsignals(signals, n)
+
     # difference between 7 and 1 gives signal for segment a
-    d1 = filter(s -> length(s) == 2, signals)[1]
-    d7 = filter(s -> length(s) == 3, signals)[1]
+    d1 = digitswithsegments(2)[1]
+    d7 = digitswithsegments(3)[1]
     sa = setdiff(d7, d1)[1]
     push!(mapping, 'a' => sa)
 
     # difference between 0,6,9 and 4 (and sa) with length 1 gives signal for segment g
-    d4 = filter(s -> length(s) == 4, signals)[1]
-    d069 = filter(s -> length(s) == 6, signals)
+    d4 = digitswithsegments(4)[1]
+    d069 = digitswithsegments(6)
     differences = map(a -> setdiff(a, d4, sa), d069)
     sg = filter(x -> length(x) == 1, differences)[1][1]
     push!(mapping, 'g' => sg)
@@ -60,13 +66,13 @@ function getmapping(signals)
     push!(mapping, 'e' => se)
 
     # difference between 2,3,5 and 1 (and sa, se, sg) with length 1 gives signal for segment d
-    d235 = filter(s -> length(s) == 5, signals)
+    d235 = digitswithsegments(5)
     differences = map(a -> setdiff(a, d1, sa, se, sg), d235)
     sd = filter(x -> length(x) == 1, differences)[1][1]
     push!(mapping, 'd' => sd)
 
     # difference between 8 and 1 (and sa, sd, se, sg) gives signal for segment b
-    d8 = filter(s -> length(s) == 7, signals)[1]
+    d8 = digitswithsegments(7)[1]
     sb = setdiff(d8, d1, sa, sd, se, sg)[1]
     push!(mapping, 'b' => sb)
 
@@ -75,8 +81,8 @@ function getmapping(signals)
     sf = filter(x -> length(x) == 1, differences)[1][1]
     push!(mapping, 'f' => sf)
 
-    # difference between all possible signals and the 6 known signals gives signal for segment c
-    sc = setdiff(['a':'g'...], sa, sb, sd, se, sf, sg)[1]
+    # difference between d8 and the 6 known signals gives signal for segment c
+    sc = setdiff(d8, sa, sb, sd, se, sf, sg)[1]
     push!(mapping, 'c' => sc)
 
     Dict([join(sort(map(x -> Dict(mapping)[x], collect(digits[i])))) => i for i in 0:9])

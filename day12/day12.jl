@@ -13,7 +13,7 @@ function AOC.processinput(data)
 end
 
 function getcavemap(connectionslist)
-    cavemap = Dict(c => [] for c in map(c -> c[1], connectionslist))
+    cavemap = Dict(c => String[] for c in map(c -> c[1], connectionslist))
     foreach(c -> push!(cavemap[c[1]], c[2]), connectionslist)
     return cavemap
 end
@@ -41,29 +41,26 @@ function strategy2(cavemap, path)
     doublevisitdone(path) ? setdiff(possiblecaves, filter(c -> issmallcave(c), path)) : possiblecaves    
 end
 
-function getpathsfrompath(cavemap, path, strategy)
+function getpaths(cavemap, path::Vector{String}, strategy)
     haskey(cavemap, path[end]) || return path
     possiblecaves = strategy(cavemap, path)
     map(c -> [path..., c], possiblecaves)
 end
 
-function getpaths(cavemap, paths, strategy)
-    collect(Iterators.flatten(map(path -> getpathsfrompath(cavemap, path, strategy), paths)))
-end
-
-function recurse(cavemap, paths, strategy)
-    pathstoextend = filter(p -> !isendcave(p[end]), paths)
+function getpaths(cavemap, paths::Vector{Vector{String}}, strategy)    
+    pathstoextend = filter(p -> !isendcave(p[end]), paths)    
     if isempty(pathstoextend)
         paths
     else
-        push!(paths, recurse(cavemap, getpaths(cavemap, pathstoextend, strategy), strategy)...)
+        newpaths = collect(Vector{String}, Iterators.flatten(map(path -> getpaths(cavemap, path, strategy), paths)))
+        push!(paths, getpaths(cavemap, newpaths, strategy)...)
     end
 end
 
 function solve(input, strategy)
     cavemap = getcavemap(input)
-    paths = [["start"]]
-    paths = recurse(cavemap, paths, strategy)
+    paths = Vector{String}[["start"]]
+    paths = getpaths(cavemap, paths, strategy)
     pathsmask = map(p -> p[end] == "end" in p, paths)
     length(paths[pathsmask])
 end
@@ -74,6 +71,12 @@ end
 
 function solve2(input)
     solve(input, strategy2)
+end
+
+function test(input)
+    cavemap = getcavemap(input)
+    paths = Vector{String}[["start"]]
+    paths = recurse(cavemap, paths, strategy1)
 end
 
 puzzles = [

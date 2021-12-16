@@ -22,7 +22,6 @@ Hex2Bin = Dict(
     'E' => "1110",
     'F' => "1111"
 )
-
 struct Packet
     version::Int
     typeid
@@ -38,9 +37,13 @@ function hex2bin(hex)
     join(map(d -> Hex2Bin[d], collect(hex)))
 end
 
+function bin2dec(code::String)
+    parse(Int, code, base=2)
+end
+
 function parseheader(code)
-    version = parse(Int, code[1:3], base=2)
-    typeid = parse(Int, code[4:6], base=2)
+    version = bin2dec(code[1:3])
+    typeid = bin2dec(code[4:6])
     version, typeid
 end
 
@@ -55,13 +58,13 @@ function parseliteral(code)
         parts += 1
     end
     binvalue *= code[2:5]
-    value = parse(Int, binvalue, base=2)
+    value = bin2dec(binvalue)
     Packet(version, typeid, value, Packet[]), code[6:end]
 end
 
 function parseoperator0(code)
     version, typeid = parseheader(code)
-    subpacketslength = parse(Int, code[8:22], base=2)
+    subpacketslength = bin2dec(code[8:22])
     packets = Packet[]
     unparsed = code[23+subpacketslength:end]
     code = code[23:22+subpacketslength]
@@ -74,7 +77,7 @@ end
 
 function parseoperator1(code)
     version, typeid = parseheader(code)
-    subpacketsnumber = parse(Int, code[8:18], base=2)
+    subpacketsnumber = bin2dec(code[8:18])
     packets = Packet[]
     code = code[19:end]
     for i in 1:subpacketsnumber
@@ -91,17 +94,17 @@ function parseoperator(code)
 end
 
 function parsebinary(code)    
-    typeid = parse(Int, code[4:6], base=2)
+    _, typeid = parseheader(code)
     typeid == 4 && return parseliteral(code)
     return parseoperator(code)
 end
 
-function getpacketversionsum(packet)  
-    packet.version + (isempty(packet.packets) ? 0 : sum(getpacketversionsum.(packet.packets)))
+function getpacketversionsum(packet)::Int  
+    packet.version + sum(getpacketversionsum.(packet.packets))
 end
 
 function getpacketvalue(packet)::Int
-    packet.typeid == 0 && return sum(getpacketvalue.(packet.packets))
+    packet.typeid == 0 && return reduce(+, getpacketvalue.(packet.packets))
     packet.typeid == 1 && return reduce(*, getpacketvalue.(packet.packets))
     packet.typeid == 2 && return reduce(min, getpacketvalue.(packet.packets))
     packet.typeid == 3 && return reduce(max, getpacketvalue.(packet.packets))

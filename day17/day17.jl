@@ -36,25 +36,38 @@ function trajectory(target, v)
     (v = v₀, targetreached = ontarget(target, trajectory[end]), maxheight = maximum(map(p -> p[2], trajectory)))
 end
 
-function solve1(target)
-    vs = [[x, y] for x in 0:100, y in 0:100] # but how do you reliably get the x and y ranges given the target? to be continued...
-    trajectories = map(v -> trajectory(target, v), vs)
-    succesfultrajectories = filter(t -> t.targetreached, trajectories)
-    maximum(map(t -> t.maxheight, succesfultrajectories))
+# Derivation for the formula below used to get vxmin
+# x + (x-1) + ... + (x-(n-1)) >= target.x1, for all n
+# nx + (n-1)n/2 >= target.x1
+# x >= target.x1/n - n/2 -1/2
+# max(target.x1/n - n/2 -1/2) => -target.x1/(n*n) - 1/2 = 0 => n = sqrt(2 * target.x1)
+
+function velocityranges(target)
+    n = sqrt(2 * target.x1)
+    vxmin::Int = floor(target.x1/n + n/2)
+    (xrange = vxmin:target.x2, yrange = target.y2:-target.y2-1)
+end
+
+function succesfultrajectories(target)
+    r = velocityranges(target)
+    velocities = [[x, y] for x in r.xrange, y in r.yrange]
+    trajectories = map(v -> trajectory(target, v), velocities)
+    succesfultrajectories = filter(t -> t.targetreached, trajectories)    
+end
+
+function solve1(target)    
+    maximum(map(t -> t.maxheight, succesfultrajectories(target)))
 end
 
 function solve2(target)
-    vs = [[x, y] for x in 0:500, y in -100:500] # but how do you reliably get the x and y ranges given the target? to be continued...
-    trajectories = map(v -> trajectory(target, v), vs)
-    succesfultrajectories = filter(t -> t.targetreached, trajectories)
-    length(succesfultrajectories)
+    length(succesfultrajectories(target))
 end
 
 puzzles = [
     Puzzle(17, "test 1", "input-test1.txt", solve1, 45),
     Puzzle(17, "deel 1", solve1, 4560),
     Puzzle(17, "test 2", "input-test1.txt", solve2, 112),
-    Puzzle(17, "deel 2", solve2, 3344)
+    Puzzle(17, "deel 2", solve2, 3344),
 ]
 
 printresults(puzzles)

@@ -12,12 +12,12 @@ end
 
 function showday(i)
     filename = "day$(i)/day$(i).jl"
-    !isfile(filename) && return true
+    !isfile(filename) && return false
 
     println()
     println("Day $(i)")
     include("day$(i)/day$(i).jl")
-    return false
+    return true
 end
 
 clearterminal()
@@ -25,6 +25,6 @@ println()
 println(bold("Advent of Code 2021"))
 
 for i in 1:25
-    stats = @timed showday(i) && break
+    stats = @timed showday(i) || break
     println(gray("Elapsed time (in secs): $(stats.time)"))
 end

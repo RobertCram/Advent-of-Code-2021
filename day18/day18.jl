@@ -2,6 +2,8 @@ module Day18
 
 include("./../aoc.jl")
 
+using Test
+
 using .AOC
 
 function AOC.processinput(data)
@@ -23,10 +25,10 @@ end
 Base.show(io::IO, s::SN) = show(io, sn2str(s))
 
 function add(s1::SN, s2::SN)
-    SN(s1, s2)
+    reducesn(SN(s1, s2))
 end
 
-function breakapart(s::String)
+function breakapart(s::AbstractString)
     level = -1
     levels = []
     for c in s
@@ -47,7 +49,7 @@ function sn2str(s::SN)
     return "[$(sn2str(s.left)),$(sn2str(s.right))]"
 end
 
-function str2sn(s::String)
+function str2sn(s::AbstractString)
     left, right = breakapart(s)
     left[1] != '[' && right[1] != '[' && return SN(parse(Int, left), parse(Int, right))
 
@@ -66,10 +68,12 @@ end
 
 function getsplitnumber(s::SN)
     typeof(s.left) <: Int && s.left >= 10 && return s
+    typeof(s.left) <: Int && typeof(s.right) <: Int && s.right >= 10 && return s
+    typeof(s.left) <: SN && typeof(s.right) <: Int && s.right >= 10 && (s1 = getsplitnumber(s.left); s1 == nothing && return s)
+
     typeof(s.left) <: SN && typeof(s.right) <: SN && (s1 = getsplitnumber(s.left); s1 === nothing && (s2 = getsplitnumber(s.right); return s1 === nothing ? s2 : s1))
     typeof(s.left) <: SN && return getsplitnumber(s.left)
     typeof(s.right) <: SN && return getsplitnumber(s.right)
-    typeof(s.right) <: Int && s.right >= 10 && return s
     return nothing
 end
 
@@ -119,10 +123,10 @@ end
 function splitsn(s::SN)
     s10 = getsplitnumber(s)
     s10 === nothing && return s
-    if typeof(s10.left) <: Int &&  s10.left > 10
+    if typeof(s10.left) <: Int &&  s10.left >= 10
         s10.left = SN(s10.left ÷ 2, Int(ceil(s10.left / 2)))
         s10.left.parent = s10
-    elseif typeof(s10.right) <: Int &&  s10.right > 10
+    elseif typeof(s10.right) <: Int &&  s10.right >= 10
         s10.right = SN(s10.right ÷ 2, Int(ceil(s10.right / 2)))
         s10.right.parent = s10
     end
@@ -130,33 +134,57 @@ function splitsn(s::SN)
 end
 
 function reducesn(s::SN)
-    s0 = s
-    for i in 1:30
+    while true
+        s0 = sn2str(s)
         s = explodesn(s)
-        s != s0 && break
+        exploded = sn2str(s) != s0 
+        # exploded && @show "exploded", s
+        exploded && continue
         s = splitsn(s)
+        splitted = sn2str(s) != s0
+        # splitted && @show "splitted", s
+        !exploded && !splitted && break
     end
     s
 end
 
+function magnitude(s::SN)
+    typeof(s.left) <: Int && typeof(s.right) <: Int && return 3 * s.left + 2 * s.right
+    typeof(s.left) <: Int && typeof(s.right) <: SN && return 3 * s.left + 2 * magnitude(s)
+    typeof(s.left) <: SN && typeof(s.right) <: Int && return 3 * magnitude(s.left) + 2 * s.right
+    typeof(s.left) <: SN && typeof(s.right) <: SN && return 3 * magnitude(s.left) + 2 * magnitude(s.right)
+end
+
 
 function solve1(input)
-    reducesn(str2sn("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]"))
+    input = str2sn.(input)
+    s = input[1]    
+    for i in 2:length(input)
+        s = add(s, input[i])
+    end
+    magnitude(s)
 end
 
 function solve2(input)
-    "nog te bepalen"
+    
 end
 
 
+# @test sn2str(reducesn(add(str2sn("[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]"), str2sn("[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]")))) == "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]"
+
 puzzles = [
-    Puzzle(18, "test 1a", "input-test1.txt", solve1, "[[[[6,6],[7,6]],[[7,7],[7,0]]],[[[7,7],[7,7]],[[7,8],[9,9]]]]"),
-    # Puzzle(18, "test 1b", "input-test1.txt", solve1, 4140),
-    # Puzzle(18, "deel 1", solve1, nothing),
-    # Puzzle(18, "test 2", "input-test1.txt", solve2, nothing),
+    # Puzzle(18, "test 1a", "input-test1a.txt", solve1, "[[[[7,7],[7,8]],[[9,5],[8,0]]],[[[9,[5,5]],20],[8,[9,0]]]]"),
+    Puzzle(18, "test 1c", "input-test1b.txt", solve1, 4140),
+    Puzzle(18, "deel 1", solve1, 3987),
+    # Puzzle(18, "test 2", "input-test1.txt", solve2, 3993),
     # Puzzle(18, "deel 2", solve2, nothing)
 ]
 
 printresults(puzzles)
 
 end
+
+
+[[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]],[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]]
+
+[[[[4,0],[5,0]],[[[4,5],[2,6]],[9,5]]],[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]]

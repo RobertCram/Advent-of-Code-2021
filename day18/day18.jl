@@ -34,12 +34,13 @@ function breakapart(s::String)
         c == ']' && (level -=1; push!(levels, level); continue)
         push!(levels, level)
     end
-    pos = findfirst(l -> l == 0, levels[2:end]) + 2
-    (left = s[2:pos-1], right = s[pos+1:end-1])    
+    rightbracket = findfirst(l -> l == 0, levels[2:end]) + 1
+    comma  = findfirst(s -> s == ',', s[rightbracket:end]) + rightbracket - 1 
+    (left = s[2:comma-1], right = s[comma+1:end-1])    
 end
 
 function sn2str(s::SN)    
-    typeof(s.left) <: Int && typeof(s.right) <: Int && return "[$(s.left),$(s.right)]"
+    typeof(s.left) <: Int && typeof(s.right) <: Int && return s == mark ? "{$(s.left),$(s.right)}" : "[$(s.left),$(s.right)]"
     typeof(s.left) <: Int && return "[$(s.left),$(sn2str(s.right))]"
     typeof(s.right) <: Int && return "[$(sn2str(s.left)),$(s.right)]"
 
@@ -63,58 +64,84 @@ function getlevel4number(s::SN, level = 0)
     return nothing
 end
 
-function getleftnumber(s)
-    @show "left", s
-    s === nothing && return nothing
-    s.parent === nothing && typeof(s.left) <: SN && return getrightnumber(s.left)
-    s.parent === nothing && return s.left
-    typeof(s.parent.left) <: Int && return s.parent.left
-    return getleftnumber(s.parent)
+function getsplitnumber(s::SN)
+    typeof(s.left) <: Int && s.left >= 10 && return s
+    typeof(s.left) <: SN && typeof(s.right) <: SN && (s1 = getsplitnumber(s.left); s1 === nothing && (s2 = getsplitnumber(s.right); return s1 === nothing ? s2 : s1))
+    typeof(s.left) <: SN && return getsplitnumber(s.left)
+    typeof(s.right) <: SN && return getsplitnumber(s.right)
+    typeof(s.right) <: Int && s.right >= 10 && return s
+    return nothing
 end
 
-function getrightnumber(s)
-    @show "right", s
-    s === nothing && return nothing
-    s.parent === nothing && typeof(s.right) <: SN && return getleftnumber(s.right)
-    s.parent === nothing && return s.right
-    typeof(s.parent.right) <: Int && return s.parent.right
-    return getrightnumber(s.parent)
+function getleftnumber(s::SN)
+    while s.parent !== nothing && s.parent.left == s
+        s = s.parent
+    end
+    s.parent === nothing && return nothing
+    
+    typeof(s.parent.left) <: Int && return s.parent
+
+    s = s.parent.left    
+    while typeof(s.right) <: SN
+        s = s.right
+    end
+    s
 end
 
+function getrightnumber(s::SN)
+    while s.parent !== nothing && s.parent.right == s
+        s = s.parent
+    end
+    s.parent === nothing && return nothing
+    
+    typeof(s.parent.right) <: Int && return s.parent
 
-function simplereduce(s::String)
-    i = 1
-    count = -1
-    for c in s
-        c == '[' && (count += 1)
-        count == 4 && break
-        i += 1
-    end 
-    start = i
-    stop = i + findfirst(c -> c == ']', s[i:end]) - 1
-    s[start:stop]
-    left = split(join(replace(c -> c in ['[', ']', ','] ? ' ' : c, collect(s[1:start-1]))))
-    leftint = isempty(left) ? nothing : left[end]
-
-    right = split(join(replace(c -> c in ['[', ']', ','] ? ' ' : c, collect(s[stop+1:end]))))
-    rightint = isempty(right) ? nothing : right[begin]
-
-    leftint, rightint
+    s = s.parent.right
+    while typeof(s.left) <: SN
+        s = s.left
+    end
+    s
 end
+
+function explodesn(s::SN)
+    s4 = getlevel4number(s)
+    s4 === nothing && return s
+    s4.parent === nothing && return s
+    changeleftpart = s4.parent.left == s4
+    left = getleftnumber(s4)
+    right = getrightnumber(s4)
+    left !== nothing && (typeof(left.right) <: Int ? left.right += s4.left : left.left += s4.left)
+    right !== nothing && (typeof(right.left) <: Int ? right.left += s4.right : right.right += s4.right)
+    changeleftpart ? s4.parent.left = 0 : s4.parent.right = 0
+    s
+end
+
+function splitsn(s::SN)
+    s10 = getsplitnumber(s)
+    s10 === nothing && return s
+    if typeof(s10.left) <: Int &&  s10.left > 10
+        s10.left = SN(s10.left ÷ 2, Int(ceil(s10.left / 2)))
+        s10.left.parent = s10
+    elseif typeof(s10.right) <: Int &&  s10.right > 10
+        s10.right = SN(s10.right ÷ 2, Int(ceil(s10.right / 2)))
+        s10.right.parent = s10
+    end
+    s
+end
+
+function reducesn(s::SN)
+    s0 = s
+    for i in 1:30
+        s = explodesn(s)
+        s != s0 && break
+        s = splitsn(s)
+    end
+    s
+end
+
 
 function solve1(input)
-    # sn2str(SN(SN(1,2), SN(SN(3,4), 5)))
-    #str2sn("[[1,2],[[3,4],5]]")
-    #str2sn("[[[[[9,8],1],2],3],4]")
-    # str2sn("[1,2]")
-    #@show str2sn("[[3,[2,[1,[7,8]]]],[6,[5,[4,[3,2]]]]]")
-    # simplereduce("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
-    # simplereduce("[[[[[9,8],1],2],3],4]")
-    # str2sn("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
-    # s = getlevel4number(str2sn("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]"))
-    #getleftnumber(s)
-    #getrightnumber(s)    
-    getleftnumber(str2sn("[1,2]"))
+    reducesn(str2sn("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]"))
 end
 
 function solve2(input)

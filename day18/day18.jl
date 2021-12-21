@@ -69,7 +69,7 @@ end
 function getsplitnumber(s::SN)
     typeof(s.left) <: Int && s.left >= 10 && return s
     typeof(s.left) <: Int && typeof(s.right) <: Int && s.right >= 10 && return s
-    typeof(s.left) <: SN && typeof(s.right) <: Int && s.right >= 10 && (s1 = getsplitnumber(s.left); s1 == nothing && return s)
+    typeof(s.left) <: SN && typeof(s.right) <: Int && s.right >= 10 && (s1 = getsplitnumber(s.left); s1 === nothing && return s)
 
     typeof(s.left) <: SN && typeof(s.right) <: SN && (s1 = getsplitnumber(s.left); s1 === nothing && (s2 = getsplitnumber(s.right); return s1 === nothing ? s2 : s1))
     typeof(s.left) <: SN && return getsplitnumber(s.left)
@@ -138,23 +138,13 @@ function reducesn(s::SN)
         s0 = sn2str(s)
         s = explodesn(s)
         exploded = sn2str(s) != s0 
-        # exploded && @show "exploded", s
         exploded && continue
         s = splitsn(s)
         splitted = sn2str(s) != s0
-        # splitted && @show "splitted", s
         !exploded && !splitted && break
     end
     s
 end
-
-# function magnitude(s::SN, m=Dict())
-#     k = sn2str(s)
-#     typeof(s.left) <: Int && typeof(s.right) <: Int && return 3 * s.left + 2 * s.right
-#     typeof(s.left) <: Int && typeof(s.right) <: SN && return haskey(m, k) ? m[k] : m[k] = 3 * s.left + 2 * magnitude(s.right, m)
-#     typeof(s.left) <: SN && typeof(s.right) <: Int && return haskey(m, k) ? m[k] : m[k] = 3 * magnitude(s.left, m) + 2 * s.right
-#     typeof(s.left) <: SN && typeof(s.right) <: SN && return haskey(m, k) ? m[k] : m[k] = 3 * magnitude(s.left, m) + 2 * magnitude(s.right, m)
-# end
 
 function magnitude(s::SN)
     typeof(s.left) <: Int && typeof(s.right) <: Int && return 3 * s.left + 2 * s.right
@@ -175,7 +165,6 @@ end
 function solve2(input)
     indices = (0,0)
     mm = 0
-    input2 = str2sn.(input)
     input = str2sn.(input)
     for i in 1:length(input)
         for j in 1:length(input)
@@ -189,20 +178,13 @@ function solve2(input)
     end 
     mm, indices   
     mm[1]
-    # @show magnitude(add(input[1], input[7]))
-    # @show sn2str.(input2)
 end
 
 
-
-
-# @test sn2str(reducesn(add(str2sn("[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]"), str2sn("[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]")))) == "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]"
-
 puzzles = [
-    # Puzzle(18, "test 1a", "input-test1a.txt", solve1, "[[[[7,7],[7,8]],[[9,5],[8,0]]],[[[9,[5,5]],20],[8,[9,0]]]]"),
-    Puzzle(18, "test 1c", "input-test1b.txt", solve1, 4140),
+    Puzzle(18, "test 1c", "input-test1a.txt", solve1, 4140),
     Puzzle(18, "deel 1", solve1, 3987),
-    Puzzle(18, "test 2", "input-test1b.txt", solve2, 3993),
+    Puzzle(18, "test 2", "input-test1a.txt", solve2, 3993),
     Puzzle(18, "deel 2", solve2, 4500)
 ]
 

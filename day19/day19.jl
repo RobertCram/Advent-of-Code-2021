@@ -42,22 +42,22 @@ end
 
 function solve(scanners)
     distances = []
-    reindexedscanners = [pop!(scanners)]
+    translatedscanners = [pop!(scanners)]
     while !isempty(scanners)
         for scanner in scanners
-            reindexed = []
-            for reindexedscanner in reindexedscanners
-                distance, rotation = findscannerdistance(reindexedscanner, scanner)
+            translated = []
+            for translatedscanner in translatedscanners
+                distance, rotation = findscannerdistance(translatedscanner, scanner)
                 if !isnothing(distance)
-                    push!(reindexed, map(v -> AllRotations[rotation] * v + distance, scanner))
+                    push!(translated, map(v -> AllRotations[rotation] * v + distance, scanner))
                     scanners = filter(s -> s != scanner, scanners)
                     push!(distances, distance)
                 end
             end
-            push!(reindexedscanners, reindexed...)
+            push!(translatedscanners, translated...)
         end
     end
-    (beacons = length(unique(Iterators.flatten(reindexedscanners))), distances = distances)
+    (beacons = length(unique(Iterators.flatten(translatedscanners))), distances = distances)
 end
 
 function solve1(scanners)    

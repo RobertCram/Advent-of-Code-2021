@@ -24,7 +24,11 @@ clearterminal()
 println()
 println(bold("Advent of Code 2021"))
 
+totalstats = @timed(
 for i in 1:25
     stats = @timed showday(i) || break
     println(gray("Elapsed time (in secs): $(stats.time)"))
 end
+)
+println(gray(""))
+println(gray("Total elapsed time (in secs): $(totalstats.time)\n"))

@@ -1,4 +1,4 @@
-ARG JULIA_VERSION=1
+ARG JULIA_VERSION=1.6-rc
 FROM julia:${JULIA_VERSION}
 
 # Options for common setup script
